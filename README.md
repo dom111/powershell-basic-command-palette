@@ -3,7 +3,7 @@ A basic command palette for Powershell Core
 
 ---
 
-This is a port of my `[bash-basic-command-palette](https://github.com/dom111/bash-basic-command-palette)`. I'm not really a Powershell user and certainly not proficient in its quirks and nuances, but I've been interested in the syntax for a while so I've used this as a chance to jump in.
+This is a port of my [`bash-basic-command-palette`](https://github.com/dom111/bash-basic-command-palette). I'm not really a Powershell user and certainly not proficient in its quirks and nuances, but I've been interested in the syntax for a while so I've used this as a chance to jump in.
 
 This has been tested on Powershell Core on macOS, so results might possibly vary using Windows, please let me know!
 
