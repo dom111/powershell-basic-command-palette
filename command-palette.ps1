@@ -38,7 +38,7 @@ if ($h) {
 # if we have multiple arguments, assume that the first is the action
 if ($args.Length -gt 1) {
     $action = $args[0];
-    $args = $args[1 .. ($args.Length - 1)];
+    $args = $args[1..($args.Length - 1)];
 }
 
 # vars
@@ -55,24 +55,32 @@ $filteredData = $data;
 $index = 0;
 
 function Filter-Data {
-    $filterGlob = $filter.ToCharArray() -join "*";
-    $filteredData = @();
+    $filterGlob = $filter.ToCharArray() -join "*" | % {
+        # escape special chars
+        if ($_ -eq "``" -or $_ -eq "*" -or $_ -eq "?") {
+            "``$_";
+        }
+        else {
+            $_;
+        }
+    };
+
+    $Script:filteredData = @();
 
     Foreach ($item in $data) {
         if ($item -like "*$filterGlob*") {
-            $filteredData += $item;
+            $Script:filteredData += $item;
         }
     }
 
-    if ($index -gt $filteredData.Length) {
-        $index = $filteredData.Length - 1;
+    if ($Script:index -gt $Script:filteredData.Length) {
+        $Script:index = $Script:filteredData.Length - 1;
     }
 
-    if ($index -lt 0) {
-        $index = 0;
+    if ($Script:index -lt 0) {
+        $Script:index = 0;
     }
 
-    return $filteredData;
     # TODO: sort data ascending by length of match
 };
 
@@ -150,16 +158,7 @@ function Update-Display {
     }
 };
 
-function cleanup {
-    # tput rmcup;
-    # tput cnorm;
-};
-
 # main
-# tput smcup;
-# tput civis;
-# trap cleanup EXIT;
-
 Update-Display;
 
 while ($key = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")) {
@@ -177,7 +176,7 @@ while ($key = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")) {
                     }
                 }
 
-                $filteredData = Filter-Data;
+                Filter-Data;
                 Update-Display;
             }
         }
@@ -223,10 +222,6 @@ while ($key = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")) {
             if ($index -gt 0) {
                 $index--;
 
-                if ($index -lt 0) {
-                    $index = 0;
-                }
-
                 Update-Display;
             }
         }
@@ -237,16 +232,13 @@ while ($key = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")) {
             if ($index -lt ($filteredData.Length - 1)) {
                 $index++;
 
-                if ($index -gt ($filteredData.Length - 1)) {
-                    $index = ($filteredData.Length - 1);
-                }
-
                 Update-Display;
             }
         }
         default {
             $filter += $key.Character;
-            $filteredData = Filter-Data;
+
+            Filter-Data;
             Update-Display;
         }
     }
